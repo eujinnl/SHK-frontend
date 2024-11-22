@@ -1,0 +1,44 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.bg-welcome {
+    background-image: url('/public/assets/Startscreen.png');
+}
+
+.button-primary{
+    background-image: url('/public/assets/buttons/Orange Button.png');
+    background-size: cover; /* Ensures the image covers the button */
+    background-origin: content-box;
+    border: none; /* Removes default border */
+    cursor: pointer; /* Shows a pointer cursor on hover */
+    transition: background-image 0.3s ease; /* Smooth transition for a better UX */
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    width: 15rem; /* 24px */
+    height: 8rem; 
+
+}
+
+.button-primary:hover{
+    background-image: url('/public/assets/buttons/Pink Button.png');
+}
+
+body{
+    height: 100vh;
+    width: 100vh;
+}
+
+.arcade-font {
+    font-family: 'Press Start 2P', cursive;
+  }
+
+
+.my-code-editor {
+    .editor-container {
+        min-height: 100%;
+    }
+}
