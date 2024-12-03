@@ -10,7 +10,7 @@ import { UUID } from 'crypto';
   standalone: true,
 })
 
-export class Level1Component implements OnInit {
+export class Level2Component implements OnInit {
     private app :  PIXI.Application;
     private scene1: PIXI.Container;
     private scene2:  PIXI.Container;
@@ -79,9 +79,6 @@ export class Level1Component implements OnInit {
       const width = app.screen.width;
       const background = this.createSprite(this.textures['bg'],0,0, width,height);
       this.scene1.addChild(background);
-
-      const stickman = this.createSprite(this.textures['stickman'], 400, 300, 500, 500);
-      this.scene1.addChild(stickman);
 
       const hair = this.createSprite(this.textures['hair'], 100, 300, 500, 500);
       hair.tint = 0xff00ff;

@@ -9,7 +9,7 @@ import { AchievementsViewComponent } from './views/achievements.view';
 
 export const routes: Routes = [
     // { path: '**', redirectTo: '' },
-    { path: '', component: WelcomeViewComponent },
+    { path: '', component: WelcomeViewComponent, pathMatch: 'full' },
     { path: 'levels', component: LevelSelectViewComponent },
     { path: 'game/:level', component: GameViewComponent },
     { path: 'leaderboard', component: LeaderboardViewComponent },

@@ -4,9 +4,11 @@ import { EditorComponent } from '../components/editor/editor.component';
 import { CommonModule } from '@angular/common';
 import { Level0Component } from '../components/levels/level0.component';
 import { Level1Component } from '../components/levels/level1.component';
+import { Logger0Component } from '../components/levels/logger0.component';
+import { Level2Component } from '../components/levels/level2.component';
+import { Logger1Component } from '../components/levels/logger1.component';
 import { PlayerCodeService } from '../services/player-code.service';
 import { levels } from '../utils/utils';
-
 
 @Component({
   selector: 'app-views',
@@ -16,22 +18,21 @@ import { levels } from '../utils/utils';
     <div class="flex flex-col bg-white w-screen h-screen">
       <div class="flex-grow flex border-blue-500 border-2 w-full">
         <div class="flex-grow border-blue-500 border-2 w-2/3">
-          <ng-container #customPlaceholder class="w-full h-full"></ng-container>
+          <ng-container #uiPlaceholder class="w-full h-full"></ng-container>
         </div>
         <div class="h-full border-blue-500 border-2 w-1/3">
           <cs-editor             
           (codeSubmitted)="receivePlayerCode($event)"
           ></cs-editor>
-          <!-- filler for the monaco code editor -->
         </div>
       </div>
-      <div class="h-1/4 flex border-blue-500 border-2 w-full">
+      <div class="h-1/5 flex border-blue-500 border-2 w-full">
         <div class="bg-white flex h-full w-full flex flex-col">
-          <div class="border-blue-500 border-2 p-3 font-bold bg-sky-400 w-full overflow-auto">
+          <div class="border-blue-500 border-2 p-3 font-bold bg-sky-400 w-full ">
             console:
           </div>
           <div>
-            <!-- filler for the console log component later on -->
+          <ng-container #loggerPlaceholder class="w-full h-full"></ng-container>
           </div>
         </div>
       </div>
@@ -40,7 +41,9 @@ import { levels } from '../utils/utils';
 })
 export class GameViewComponent {
 
-    @ViewChild('customPlaceholder', { read: ViewContainerRef, static: true }) customPlaceholder!: ViewContainerRef;
+    @ViewChild('uiPlaceholder', { read: ViewContainerRef, static: true }) uiPlaceholder!: ViewContainerRef;
+    @ViewChild('loggerPlaceholder', { read: ViewContainerRef, static: true }) loggerPlaceholder!: ViewContainerRef;
+
     levelId !: number;
   
   
@@ -58,11 +61,24 @@ export class GameViewComponent {
   }
 
   private loadComponent() {
-    this.customPlaceholder.clear();
-    if (this.levelId === 0) {
-      this.customPlaceholder.createComponent(Level0Component);
-    } else if (this.levelId === 1) {
-      this.customPlaceholder.createComponent(Level1Component);
+    this.uiPlaceholder.clear();
+    this.loggerPlaceholder.clear();
+    switch (this.levelId) {
+      case 0:
+        this.uiPlaceholder.createComponent(Level0Component);
+        this.loggerPlaceholder.createComponent(Logger0Component);
+        break;
+      case 1:
+        this.uiPlaceholder.createComponent(Level1Component);
+        this.loggerPlaceholder.createComponent(Logger1Component);
+        break;
+      // case 2:
+      //   this.uiPlaceholder.createComponent(Level2Component);
+      //   this.loggerPlaceholder.createComponent(Logger2Component);
+      //   break;
+      default:
+        console.error('Invalid level ID:', this.levelId);
+        break;
     }
   }
 

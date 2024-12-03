@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as PIXI from 'pixi.js';
 import { AsyncPipe, DecimalPipe, JsonPipe, NgForOf, NgIf } from '@angular/common';
 import { UUID } from 'crypto';
+import { PlayerCodeService } from '../../services/player-code.service';
 
 @Component({
   selector: 'game-component',
@@ -16,30 +17,32 @@ import { UUID } from 'crypto';
 })
 
 export class Level0Component implements OnInit {
-    private app :  PIXI.Application;
-    private scene1: PIXI.Container;
-    private scene2:  PIXI.Container;
-    private scene3 : PIXI.Container;
-    private textures: { [key: string]: PIXI.Texture } = {};
-    private current_scene: number = 1;
+  private app :  PIXI.Application;
+  private scene1: PIXI.Container;
+  private scene2:  PIXI.Container;
+  private scene3 : PIXI.Container;
+  private textures: { [key: string]: PIXI.Texture } = {};
+  private current_scene: number = 1;
 
 
+  constructor(private pc: PlayerCodeService) {
+    this.app = new PIXI.Application();
+    this.scene1 = new PIXI.Container();
+    this.scene2 = new PIXI.Container();
+    this.scene3 = new PIXI.Container();
+  }
 
-    constructor() {
-      this.app = new PIXI.Application();
-      this.scene1 = new PIXI.Container();
-      this.scene2 = new PIXI.Container();
-      this.scene3 = new PIXI.Container();
-    }
+  async ngOnInit() {
+      await this.loadAssets();
+      this.pc.state$.subscribe(async (state) => {	
+      if (this.app) {
+          this.draw(state,this.app);
+        }
+      }
 
-    async ngOnInit() {
-        await this.loadAssets();
-        if (this.app) {
-            this.draw(this.app);
-          }
-    
+  )
+}
 
-    }
 
   private async loadAssets() {
     const gameContainer = document.getElementById('game-container');
@@ -76,7 +79,8 @@ export class Level0Component implements OnInit {
 
     }
 
-    private draw(app: PIXI.Application) {
+    private draw(state:any ,app: PIXI.Application) { 
+      // remember to change the state: any to a more fitting thing using classes
       const button = this.createSprite(this.textures['button'], 10, 10, 100, 100);
       app.stage.addChild(button)
       // each scene is loaded and unloaded after a flag is checked in an observable?
@@ -91,7 +95,7 @@ export class Level0Component implements OnInit {
       const background = this.createSprite(this.textures['bg'],0,0, width,height);
       this.scene1.addChild(background);
 
-      const stickman = this.createSprite(this.textures['stickman'], 0.5*width, 0.5* height, 500, 500);
+      const stickman = this.createSprite(this.textures['stickman'], 0.4*width, 0.3* height, 0.2*width, 0.5* height);
       this.scene1.addChild(stickman);
 
       app.stage.addChild(this.scene1);

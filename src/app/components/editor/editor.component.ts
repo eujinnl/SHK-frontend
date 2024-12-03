@@ -1,16 +1,14 @@
 import { Component,Inject, PLATFORM_ID, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MonacoEditorService } from './monaco-editor.service';
-import { NgxMonacoEditorConfig } from 'ngx-monaco-editor-v2';
-import { NGX_MONACO_EDITOR_CONFIG } from 'ngx-monaco-editor-v2';
+import { PlayerCodeService } from '../../services/player-code.service';
 // import { getMonacoConfig, MonacoEditorService } from './monaco-editor.service';
 
 @Component({
   standalone: true,
-  providers: [MonacoEditorService],
+  providers: [MonacoEditorService, PlayerCodeService],
   imports: [MonacoEditorModule, FormsModule, HttpClientModule],
   selector: 'cs-editor',
   template: `<ngx-monaco-editor
@@ -28,15 +26,11 @@ export class EditorComponent implements OnInit{
   @Output() codeSubmitted = new EventEmitter<string>();
   @Input() initialCode: string = 'function x() {\n\tconsole.log("Hello world!");\n}';
 
-
-  isBrowser: boolean = false;
-
   code: string= 'function x() {\n\tconsole.log("Hello world!");\n}';
 
   editorOptions = {theme: 'vs-dark', language: 'python', wordWrap: 'on'};
 
-  constructor(private monacoService: MonacoEditorModule, @Inject(PLATFORM_ID) private platformId: Object){
-    this.isBrowser = isPlatformBrowser(this.platformId);
+  constructor(private monacoService: MonacoEditorModule, private playerCodeService: PlayerCodeService) {
   }
   ngOnInit(): void {
       return
@@ -51,6 +45,7 @@ export class EditorComponent implements OnInit{
     saveButton.style.bottom = '10px';
     saveButton.style.left = '10px';
 
+    // this takes the code from the editor and emits it to the parent component
     saveButton.addEventListener('click', () => {
       const code = editor.getValue();
       this.codeSubmitted.emit(code);

@@ -44,3 +44,5 @@ line 30 in project.json to enable server side rendering again
         // "ssr": {
         //   "entry": "server.ts"
         // }
+
+nvm use 22.9.0.

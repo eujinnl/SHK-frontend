@@ -1,3 +1,5 @@
+import e from "express";
+
 export type levelInfo = {
   levelInt: number;
   topic: string;
@@ -47,4 +49,14 @@ export function getScreenSizeWithAspectRatio(
   const targetHeight =
     containerRatio >= aspectRatio ? height : width / aspectRatio;
   return { width: targetWidth, height: targetHeight };
+}
+
+export function checkifHexCode(color: string){
+  // returns true or false if the color is a valid hex code
+  if (/^#[0-9A-F]{6}$/i.test(color) === false){
+    throw new Error('Variable only accepts Hex code strings')
+  }
+  else{
+    return true;
+  }
 }
