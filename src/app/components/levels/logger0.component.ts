@@ -48,6 +48,7 @@ export class Logger0Component implements OnInit {
   async ngOnInit() {
     this.initializePipes();
     await this.loadPyodide();
+    this.pc.updateMonacoEditor("# Define 'name' variable")
     this.pc.state$.subscribe(async (state) => {
       if (state['code']) {
         const code = `
@@ -92,15 +93,17 @@ mystdout.getvalue()
       throw new Error('Pyodide is not loaded');
     }
     try {
+      this.pyodideInterface.globals['clear']();
       const pyresponse = await this.pyodideInterface.runPythonAsync(script);
       switch (scene) {
         case 1:
           const nameObj = this.pyodideInterface.globals['get']("name");
-          // console.log(nameObj, typeof nameObj);
+          console.log(nameObj, typeof nameObj);
           if (typeof nameObj === 'string') {
-            console.log("next scene");
+            this.pc.nextScene();
+            console.log(`Onwards to scene 2, name is defined as ${nameObj}`);
+            this.pc.updateMonacoEditor("# Scene 2: Dress up the character\n\n# Set the hair shape\nhair_shape = \n\n# Set the hair color\nhair_color = \n\n# Set the shirt color\nshirt_color = \n\n# Set the pant color\npant_color = \n\n# Set the shoe color\nshoe_color = ");
           }
-          // this.pc.updateState('scene', 1);
           break;
         case 2:
           var counter = 0
@@ -109,40 +112,49 @@ mystdout.getvalue()
           const shirtcolorObj = this.pyodideInterface.globals['get']("shirt_color");
           const pantcolorObj= this.pyodideInterface.globals['get']("pant_color");
           const shoecolorObj= this.pyodideInterface.globals['get']("shoe_color");
-          if ( typeof hairshapeObj === 'string' ) {
+          if ( typeof hairshapeObj === 'string' && hairshapeObj in ['curly', 'straight', 'bald']) {
             counter += 1;
           } 
-
-          if ( typeof shirtcolorObj === 'string' && checkifHexCode(shirtcolorObj) ) {
-            counter += 1;
+          if ( typeof shirtcolorObj === 'string' ) {
+            console.log("checking shirt color")
+            console.log(typeof shirtcolorObj)
+            if(checkifHexCode(shirtcolorObj)){
+              counter += 1;
+            }
           } 
-
-          if (typeof pantcolorObj === 'string' && checkifHexCode(pantcolorObj) ) {
-            counter += 1;
+          if (typeof pantcolorObj === 'string' ) {
+            console.log("checking pant color")
+            if(checkifHexCode(pantcolorObj)){
+              counter += 1;
+            }
           } 
-
-          if (typeof shoecolorObj === 'string' && checkifHexCode(shoecolorObj) ) {
-            counter += 1;
+          if (typeof shoecolorObj === 'string') {
+            if(checkifHexCode(shoecolorObj)){
+              counter += 1;
+            }
           } 
-
-          if (typeof haircolorObj === 'string' && checkifHexCode(haircolorObj) ) {
-            counter += 1;
+          if (typeof haircolorObj === 'string' ) {
+            if(checkifHexCode(haircolorObj)){
+              counter += 1;
+            }
           }
-
+          console.log(counter);
           if (counter === 5){
-            console.log("next scene");
+            this.pc.nextScene();   
+            console.log("Onwards to scene 3")       
           }
-
           break;
         case 3:
 
           break;
-        }
-        return pyresponse;
-      }
-      catch (error) {
-      const pyresponse = (error as Error).toString();
+        default:
+          break;
+        }  
       return pyresponse;
+      }
+    catch (error) {
+    const pyresponse = (error as Error).toString();
+    return pyresponse;
     }
   }
 
@@ -155,7 +167,6 @@ mystdout.getvalue()
       randomWords.push(words[randomIndex]);
       words.splice(randomIndex, 1);
     }
-    console.log(randomWords);
 
   }
 

@@ -18,6 +18,13 @@ export const levels: Record<number,levelInfo> = {
   9: { levelInt: 9, topic: "Grandmaster Tactics" },
 };
 
+export interface gameState {
+  currentLevel: number;
+  currentScene: number;
+  code: string;
+
+}
+
 export interface Achievement {
   title: string;
   description: string;

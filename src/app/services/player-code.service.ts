@@ -1,73 +1,57 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { levelInfo } from '../utils/utils';
+import { gameState, levelInfo } from '../utils/utils';
 import { loadPyodide, PyodideInterface } from 'pyodide';
 import { BehaviorSubject } from 'rxjs';
-
-
 
 @Injectable({
   providedIn: 'root',
 })
 export class PlayerCodeService {
   scene: number = 0;
-  private state = new BehaviorSubject<Record<string, any>>({
-    currentLevel: 1, // The active level
-    currentScene: 2, // The active scene
-    code: "",
-  });
+  private defaultState: gameState = {
+    currentLevel: 1,
+    currentScene: 1,
+    code: "If you see this, something went wrong",
+  };
+  state: BehaviorSubject<gameState> = new BehaviorSubject<gameState>(this.defaultState);
   state$ = this.state.asObservable();
-
 
   // constructor(private http: HttpClient) {}
 
   submitCode(code: string, level: levelInfo) {
     // this is supposed to submit code to pyodide logger and pyodide component will handle execution and call "updatestate" method
-    const cleanedCode = this.cleancode(code)
+    const cleanedCode = this.cleancode(code);
     const currentState = this.state.getValue();
     currentState['code'] = cleanedCode; // Add the cleaned code to the state
     this.state.next(currentState);
   }
 
   nextScene() {
+    this.state.next({
+      currentLevel: this.state.getValue().currentLevel,
+      currentScene: this.state.getValue().currentScene + 1,
+      code: "",
+    });
   }
 
-  
-  updateState(variableName: string, value: any) {
+  updateMonacoEditor(code: string) {
     const currentState = this.state.getValue();
-    currentState[variableName] = value;
+    currentState.code = code;
     this.state.next(currentState);
+  }
+
+  achievementUnlocked() {
+
   }
 
   setGameName(name: string, username: string = "maxi") {
-    const currentState = this.state.getValue();
-    currentState['programName'] = name;
-    this.state.next(currentState);
+    // Implement the logic for setting the user's game name
   }
 
-  getGameName(username: string = "maxi") {
-    return this.state.getValue()['programName'];
-  }
-
-
-  cleancode(code: string) {
-    // Example: Remove infinite loops using basic detection (improve as needed)
-    if (code.includes('while True') || code.includes('for(;;)')) {
-      throw new Error('Infinite loops are not allowed.');
-    }
+  cleancode(code: string): string {
+    // Implement the logic for cleaning the code
     return code;
-
   }
-
-
-  getVariable(variableName: string): any {
-    return this.state.getValue()[variableName];
-  }
-
 }
-
-
-
-
-

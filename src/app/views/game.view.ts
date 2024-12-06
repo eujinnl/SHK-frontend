@@ -1,4 +1,4 @@
-import { Component, ViewContainerRef, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, ViewContainerRef, ViewChild, EventEmitter, Output, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink,  } from '@angular/router';
 import { EditorComponent } from '../components/editor/editor.component';
 import { CommonModule } from '@angular/common';
@@ -23,6 +23,7 @@ import { levels } from '../utils/utils';
         <div class="h-full border-blue-500 border-2 w-1/3">
           <cs-editor             
           (codeSubmitted)="receivePlayerCode($event)"
+          [monacoCode]="monacoCode()"
           ></cs-editor>
         </div>
       </div>
@@ -45,6 +46,7 @@ export class GameViewComponent {
     @ViewChild('loggerPlaceholder', { read: ViewContainerRef, static: true }) loggerPlaceholder!: ViewContainerRef;
 
     levelId !: number;
+    monacoCode= signal('print("Hello world!")');
   
   
     constructor(private route: ActivatedRoute, private router: Router, private pcs: PlayerCodeService) {
@@ -53,11 +55,13 @@ export class GameViewComponent {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.levelId = Number(params.get('level'));
-      console.log('Level ID:', this.levelId);
+      // console.log('Level ID:', this.levelId);
       // You can now use this.levelId to load the appropriate level or perform other actions
     });
-
     this.loadComponent();
+    this.pcs.state$.subscribe((state) => {
+      this.monacoCode.set(state['code']);
+    });
   }
 
   private loadComponent() {
