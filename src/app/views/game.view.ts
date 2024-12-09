@@ -6,6 +6,7 @@ import { Level0Component } from '../components/levels/level0.component';
 import { Level1Component } from '../components/levels/level1.component';
 import { Logger0Component } from '../components/levels/logger0.component';
 import { Level2Component } from '../components/levels/level2.component';
+import { LevelTestComponent } from '../components/levels/level_template.component';
 import { Logger1Component } from '../components/levels/logger1.component';
 import { PlayerCodeService } from '../services/player-code.service';
 import { levels } from '../utils/utils';
@@ -80,6 +81,9 @@ export class GameViewComponent {
       //   this.uiPlaceholder.createComponent(Level2Component);
       //   this.loggerPlaceholder.createComponent(Logger2Component);
       //   break;
+      case 305:
+        this.uiPlaceholder.createComponent(LevelTestComponent);
+        break;
       default:
         console.error('Invalid level ID:', this.levelId);
         break;

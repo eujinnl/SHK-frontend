@@ -24,16 +24,14 @@ export class PlayerCodeService {
     // this is supposed to submit code to pyodide logger and pyodide component will handle execution and call "updatestate" method
     const cleanedCode = this.cleancode(code);
     const currentState = this.state.getValue();
-    currentState['code'] = cleanedCode; // Add the cleaned code to the state
+    currentState.code = cleanedCode; // Add the cleaned code to the state
     this.state.next(currentState);
   }
 
   nextScene() {
-    this.state.next({
-      currentLevel: this.state.getValue().currentLevel,
-      currentScene: this.state.getValue().currentScene + 1,
-      code: "",
-    });
+    const currentState = this.state.getValue();
+    currentState.currentScene += 1;
+    this.state.next(currentState);
   }
 
   updateMonacoEditor(code: string) {
@@ -45,6 +43,15 @@ export class PlayerCodeService {
   achievementUnlocked() {
 
   }
+  
+  // Update a specific property dynamically
+  updateVariable<K extends keyof gameState>(variable: K, value: gameState[K]){
+    const currentState = this.state.getValue(); // Get the current state
+    if (currentState[variable] !== value) { // Check if the state has changed to prevent infinite loops
+      currentState[variable] = value; // Dynamically update the property
+      this.state.next(currentState); // Push the updated state
+    }
+  }
 
   setGameName(name: string, username: string = "maxi") {
     // Implement the logic for setting the user's game name
@@ -52,6 +59,6 @@ export class PlayerCodeService {
 
   cleancode(code: string): string {
     // Implement the logic for cleaning the code
-    return code;
+    return code.trim();
   }
 }

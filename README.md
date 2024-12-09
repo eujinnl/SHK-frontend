@@ -46,3 +46,9 @@ line 30 in project.json to enable server side rendering again
         // }
 
 nvm use 22.9.0.
+
+hair_shape = "donald"
+hair_color = "#000000"
+shirt_color = "#000000"
+pant_color = "#000000"
+shoe_color = "#000000"

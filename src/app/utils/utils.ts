@@ -18,11 +18,19 @@ export const levels: Record<number,levelInfo> = {
   9: { levelInt: 9, topic: "Grandmaster Tactics" },
 };
 
+// type HexCode = `#${string}`; 
+
 export interface gameState {
   currentLevel: number;
   currentScene: number;
   code: string;
-
+  name?: string;
+  hair_shape?: string;
+  hair_color?: string;
+  shirt_color?: string;
+  pant_color?: string;
+  shoe_color?: string;
+  confirmation?: boolean;
 }
 
 export interface Achievement {
@@ -38,6 +46,7 @@ export const mongoConfig = {
   port: '27017',
   db: 'csports',
 };
+
 
 export function minMaxVal(min: number, max: number, value: number): number {
   return Math.min(Math.max(min, value), max);
@@ -67,3 +76,10 @@ export function checkifHexCode(color: string){
     return true;
   }
 }
+
+
+// hair_shape = "bald"
+// hair_color = "#000000"
+// shirt_color = "#000000"
+// pant_color = "#000000"
+// shoe_color = "#000000"

@@ -53,7 +53,7 @@ export class Level1Component implements OnInit {
     const assetsToLoad = [
         { alias: 'bg', src: '/public/assets/bg.png' },
         {alias: 'stickman', src: '/public/assets/stickman.png'},
-        {alias: 'hair', src: '/public/assets/hair/donald_hair.png'},
+        {alias: 'hair', src: '/public/assets/hair/donald.png'},
     ]  
 
     console.log('Loading assets:', assetsToLoad);

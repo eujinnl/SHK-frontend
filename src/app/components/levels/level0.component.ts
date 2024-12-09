@@ -37,16 +37,13 @@ export class Level0Component implements OnInit {
 
   async ngOnInit() {
       await this.loadAssets();
-      this.pc.state$.subscribe(async (state) => {	
+      this.pc.state$.subscribe(state => {	
         console.log('State:', state);
         if (this.app) {
             this.draw(state,this.app);
           }
-      }
-
-  )
-}
-
+      });
+  }
 
   private async loadAssets() {
     const gameContainer = document.getElementById('game-container');
@@ -69,6 +66,10 @@ export class Level0Component implements OnInit {
         {alias: 'stickman', src: '/public/assets/stickman.png'},
         {alias: 'button', src: '/public/assets/buttons/Pink Button.png'},
         {alias: 'oogway', src: '/public/assets/oogway.png'},
+        {alias: 'donald_hair', src: '/public/assets/hair/donald.png'},
+        {alias: 'black_hair', src: '/public/assets/hair/black.png'},
+        {alias: 'shirt', src: '/public/assets/shirt.png'},
+        {alias: 'pant', src: '/public/assets/pant.png'},
     ]  
 
     console.log('Loading assets:', assetsToLoad);
@@ -84,17 +85,14 @@ export class Level0Component implements OnInit {
 
     }
 
-    private draw(state:gameState ,app: PIXI.Application) { 
+    private async draw(state:gameState ,app: PIXI.Application) { 
       // remember to change the state: any to a more fitting thing using classes
       // const button = this.createSprite(this.textures['button'], 10, 10, 100, 100);
       // app.stage.addChild(button)
       // each scene is loaded and unloaded after a flag is checked in an observable?
       this.draw_scene1(app);
-      this.draw_scene2(app);
+      this.draw_scene2(app,state);
       this.draw_scene3(app);
-      this.scene1.visible = false;
-      this.scene2.visible = false;
-      this.scene3.visible = false;
       switch (state.currentScene){
         case 1:
           this.scene1.visible = true;
@@ -111,8 +109,7 @@ export class Level0Component implements OnInit {
           this.scene2.visible = false;
           this.scene3.visible = true;
           break;
-      }
-        
+        }
 
 
       }
@@ -145,16 +142,41 @@ export class Level0Component implements OnInit {
       app.stage.addChild(this.scene1);
     }
 
-    private draw_scene2(app: PIXI.Application) {
+    private draw_scene2(app: PIXI.Application, state: gameState) {
 
       const background = this.createSprite(this.textures['bg'],0,0, this.screenWidth,this.screenHeight);
       this.scene2.addChild(background);
 
       const stickman = this.createSprite(this.textures['stickman'], 0.6*this.screenWidth, 0.3* this.screenHeight, 0.2*this.screenWidth, 0.5* this.screenHeight);
-      this.scene2.addChild(stickman);
+      // this.scene2.addChild(stickman);
 
       const oogway = this.createSprite(this.textures['oogway'], 0.2*this.screenWidth, 0.3* this.screenHeight, 0.2*this.screenWidth, 0.5* this.screenHeight);
       this.scene2.addChild(oogway);
+
+      const donald = this.createSprite(this.textures['donald_hair'], 0.61*this.screenWidth, 0.31 * this.screenHeight, 0.15*this.screenWidth, 0.15* this.screenHeight);
+
+      const black = this.createSprite(this.textures['black_hair'], 0.6*this.screenWidth, 0.1* this.screenHeight, 0.2*this.screenWidth, 0.3* this.screenHeight);
+
+      // if(state.hair_shape === 'donald'){
+      //   if (state.hair_color){
+      //     donald.tint = state.hair_color;
+      //   }
+      //   this.scene2.addChild(donald);
+      // }
+      // else if(state.hair_shape === 'black'){
+      //   if (state.hair_color){
+      //     black.tint = state.hair_color;
+      //   }
+      //   this.scene2.addChild(black);
+      // }
+      // else if(state.hair_shape === 'bald'){
+      //   // do nothing
+      // }
+
+      // if(state.hair_color){
+
+      // }
+
 
       const message = new PIXI.Text({
         text:"We will try to help you get out of here, seems like we need to learn Python together. We can’t really see you, I think you need to define your variables!",
@@ -170,11 +192,65 @@ export class Level0Component implements OnInit {
       message.y = 20;
       this.scene2.addChild(message);
 
+      if (state.hair_shape || state.hair_color || state.shirt_color || state.pant_color || state.shoe_color){
+        const character = this.createCharacter(state.hair_shape, state.hair_color, state.shirt_color, state.pant_color, state.shoe_color);
+        this.scene2.addChild(character);
+        character.x = 0.52*this.screenWidth;
+        character.y = 0.2* this.screenHeight
+        character.width = 0.3*this.screenWidth;
+        character.height = 0.6* this.screenHeight;
+      }
+      else{
+        this.scene2.addChild(stickman)
+      }
+      // if state.confirmation is false, draw a confirmation textbox and a button when pressed, turns state.confirmation to true
+
       app.stage.addChild(this.scene2);
 
+      if (state.confirmation === false){
+        console.log('Confirmation is false');
+        const confirmation = new PIXI.Text({
+          text:"Are you sure this to be your final appearance?",
+          style:{
+          fontFamily: 'Arial',
+          fontSize: 24,
+          fill: 0x000000,
+          align: 'center',
+          wordWrap: true,
+          wordWrapWidth: this.screenWidth - 40,
+        }});
+        confirmation.x = this.screenWidth * 0.1;
+        confirmation.y = this.screenWidth * 0.4;
+        this.scene2.addChild(confirmation);
+
+        const button = this.createSprite(this.textures['button'], 0.3*this.screenWidth, 0.8*this.screenHeight, 0.2*this.screenWidth, 0.1*this.screenHeight);
+        button.interactive = true;
+        (button as PIXI.Sprite & { buttonMode: boolean }).buttonMode = true;
+        button.on('pointerdown', () => {
+          console.log("next scene")
+          this.pc.updateVariable('confirmation', true);
+        });
+        this.scene2.addChild(button);
+      }
     }
 
     private draw_scene3(app: PIXI.Application) { 
+      const confirmation = new PIXI.Text({
+        text:"Scene 3",
+        style:{
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0x000000,
+        align: 'center',
+        wordWrap: true,
+        wordWrapWidth: this.screenWidth - 40,
+      }});
+      confirmation.x = this.screenWidth * 0.1;
+      confirmation.y = this.screenWidth * 0.4;
+      this.scene3.addChild(confirmation);
+
+      app.stage.addChild(this.scene3);
+
     }
 
     private createSprite(texture: PIXI.Texture | undefined, x: number, y: number, width: number, height: number){
@@ -188,5 +264,42 @@ export class Level0Component implements OnInit {
         return sprite;
     }
 
+    private createCharacter(hair_shape?: string, hair_color?: string,shirt_color?: string, pant_color?: string, shoe_color?: string){
+      const character = new PIXI.Container();
+      var hair: PIXI.Sprite;
+
+      const stickman1 = this.createSprite(this.textures['stickman'], 50,50,200,300);
+      character.addChild(stickman1);
+      if(hair_shape==='donald'){
+        const hair = this.createSprite(this.textures['donald_hair'], 82, 51, 120, 100);
+        if (hair_color){
+          hair.tint = hair_color;
+        }
+        character.addChild(hair);
+      }
+      else if(hair_shape==='black'){
+        const hair = this.createSprite(this.textures['black_hair'], 105, 50, 100, 100);
+        if (hair_color){
+          hair.tint = hair_color;
+        }
+        character.addChild(hair);
+      }
+      if (shirt_color){
+        const shirt = this.createSprite(this.textures['shirt'], 105,140,99,130);
+        shirt.tint = shirt_color;
+        character.addChild(shirt);
+      }
+      if (pant_color){
+        const pant = this.createSprite(this.textures['pant'],105,200,99,130);
+        pant.tint = pant_color;
+        character.addChild(pant);
+      }
+      if (shoe_color){
+        const shoe = this.createSprite(this.textures['shoe'], 0, 0, 0.2*this.screenWidth, 0.5*this.screenHeight);
+        shoe.tint = shoe_color;
+        character.addChild(shoe);
+      }
+      return character;
+    }
   
 }
