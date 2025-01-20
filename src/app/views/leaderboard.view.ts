@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-<div class="max-w-xl  mx-auto bg-black border-4 border-yellow-400 rounded-lg overflow-hidden">
+<div class="max-w-xl mx-auto bg-black border-4 border-yellow-400 rounded-lg overflow-hidden">
   <!-- Header with arrows and level display -->
   <div class="bg-yellow-400 text-black p-4 text-center font-bold text-xl arcade-font uppercase tracking-widest">
     <div class="flex items-center justify-between">
@@ -21,7 +21,7 @@ import { Router, RouterLink } from '@angular/router';
       </button>
     </div>
   </div>
-  
+
   <!-- Leaderboard list -->
   <ul id="leaderboard" class="divide-y divide-yellow-600">
     <!-- Default Level 1 Leaderboard -->
@@ -46,18 +46,23 @@ import { Router, RouterLink } from '@angular/router';
       </div>
       <span class="text-yellow-200">900 pts</span>
     </li>
+    <!-- Distinct Row for Current Player -->
+    <li class="flex items-center justify-between p-4 bg-yellow-500 text-black font-bold arcade-font text-lg border-t border-yellow-400">
+      <div class="flex items-center space-x-4">
+        <span class="text-2xl">#7</span>
+        <span class="uppercase">Current Player</span>
+      </div>
+      <span>600 pts</span>
+    </li>
   </ul>
 </div>
-
-<!-- Tailwind Customization -->
-<style>
+  `,
+  styles: [`
   /* Arcade-style font */
   .arcade-font {
     font-family: 'Press Start 2P', cursive;
-  }
-</style>
+  }`]
 
-  `
 })
 export class LeaderboardViewComponent{
   constructor(private router: Router) {

@@ -1,4 +1,5 @@
 import e from "express";
+import { Url } from "node:url";
 
 export type levelInfo = {
   levelInt: number;
@@ -18,7 +19,7 @@ export const levels: Record<number,levelInfo> = {
   9: { levelInt: 9, topic: "Grandmaster Tactics" },
 };
 
-// type HexCode = `#${string}`; 
+// type HexCode = `#${string}`;
 
 export interface gameState {
   currentLevel: number;
@@ -33,11 +34,15 @@ export interface gameState {
   confirmation?: boolean;
 }
 
+type AssetsFilePath = `/public/assets/${string}.png`;
+
 export interface Achievement {
   title: string;
+  signifier: AssetsFilePath;
   description: string;
-  date: string;
+  date?: string;
 }
+
 
 export const mongoConfig = {
   user: 'csports-rw-user',

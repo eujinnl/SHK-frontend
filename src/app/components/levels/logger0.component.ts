@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { loadPyodide, PyodideInterface } from 'pyodide';
 import { PlayerCodeService } from '../../services/player-code.service';
 import { checkifHexCode, gameState } from '../../utils/utils';
-/* @vite-ignore */
-const PYODIDE_BASE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-logger',
@@ -15,7 +13,7 @@ const PYODIDE_BASE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full';
   `,
 })
 export class Logger0Component implements OnInit {
-  private pyodideInterface: PyodideInterface | undefined;
+  private worker: Worker;
   result: string | undefined;
   words = ['Algorithms',
     "Executable",
@@ -42,13 +40,25 @@ export class Logger0Component implements OnInit {
     "Identifier",
     "Executable",
     "Concurrent"];
+    interruptBuffer: Uint8Array;
 
-  constructor(private pc: PlayerCodeService) {}
+
+  constructor(private pc: PlayerCodeService) {
+    this.worker = new Worker(new URL('./logger0.worker.ts', import.meta.url));
+    this.interruptBuffer = new Uint8Array(new SharedArrayBuffer(1))
+    this.worker.onmessage = (event) => {
+      const { type, result, error } = event.data;
+      if (type === 'result') {
+        this.result = result;
+      } else if (type === 'error') {
+        this.result = error;
+      }
+    };
+  }
 
   async ngOnInit() {
     this.initializePipes();
-    await this.loadPyodide();
-    this.pc.updateMonacoEditor("# Define 'name' variable")
+    this.pc.updateMonacoEditor("# Define 'name' variable");
     this.pc.state$.subscribe(async (state) => {
       if (state.code) {
         const code = `
@@ -72,98 +82,15 @@ sys.stdout = sys.__stdout__
 # Get the output
 mystdout.getvalue()
 `;
-        this.result = await this.runScene(code, state);
-        // console.log('Python script result:', this.result);
+        this.interruptBuffer[0] = 0;
+        this.worker.postMessage({ cmd: "setInterruptBuffer", buffer:this.interruptBuffer });
+        this.worker.postMessage({ cmd: 'runCode', code: code });
+        setTimeout(() => {
+          this.interruptBuffer[0] = 2;
+          console.log("buffer changed after 3 seconds")
+        }, 3000); // Delay of 3 seconds
       }
     });
-  }
-
-  private async loadPyodide() {
-    /* @vite-ignore */
-    this.pyodideInterface = await loadPyodide({
-      indexURL: PYODIDE_BASE_URL,
-    });
-    console.log('Pyodide loaded');
-  }
-
-
-
-  private async runScene(code: string, state: gameState): Promise<string> {
-    if (!this.pyodideInterface) {
-      throw new Error('Pyodide is not loaded');
-    }
-    try {
-      this.pyodideInterface.globals['clear']();
-      const pyresponse = await this.pyodideInterface.runPythonAsync(code);
-      switch (state["currentScene"]) {
-        case 1:
-          const nameObj = this.pyodideInterface.globals['get']("name");
-          // console.log(nameObj, typeof nameObj);
-          if (typeof nameObj === 'string') {
-            this.pc.nextScene();
-            // console.log(`Onwards to scene 2, name is defined as ${nameObj}`);
-            this.pc.updateMonacoEditor("# Scene 2: Dress up the character\n\n# Set the hair shape\nhair_shape = \n\n# Set the hair color\nhair_color = \n\n# Set the shirt color\nshirt_color = \n\n# Set the pant color\npant_color = \n\n# Set the shoe color\nshoe_color = ");
-          }
-          break;
-        case 2:
-          var counter = 0
-          const hairshapeObj  = this.pyodideInterface.globals['get']("hair_shape");
-          const haircolorObj = this.pyodideInterface.globals['get']("hair_color");
-          const shirtcolorObj = this.pyodideInterface.globals['get']("shirt_color");
-          const pantcolorObj= this.pyodideInterface.globals['get']("pant_color");
-          const shoecolorObj= this.pyodideInterface.globals['get']("shoe_color");
-          if ( typeof hairshapeObj === 'string' && ['donald', 'black', 'bald'].includes(hairshapeObj)) {
-            counter += 1;
-            this.pc.updateVariable('hair_shape', hairshapeObj);
-          } 
-          if ( typeof shirtcolorObj === 'string' ) {
-            if(checkifHexCode(shirtcolorObj)){
-              counter += 1;
-              this.pc.updateVariable('shirt_color', shirtcolorObj);
-            }
-          } 
-          if (typeof pantcolorObj === 'string' ) {
-            if(checkifHexCode(pantcolorObj)){
-              counter += 1;
-              this.pc.updateVariable('pant_color', pantcolorObj);
-            }
-          } 
-          if (typeof shoecolorObj === 'string') {
-            if(checkifHexCode(shoecolorObj)){
-              counter += 1;
-              this.pc.updateVariable('shoe_color', shoecolorObj);
-            }
-          } 
-          if (typeof haircolorObj === 'string' ) {
-            if(checkifHexCode(haircolorObj)){
-              counter += 1;
-              this.pc.updateVariable('hair_color', haircolorObj);
-            }
-          }
-          if (counter === 5){
-            if (state.confirmation === true){
-              this.pc.nextScene();
-              this.pc.updateMonacoEditor("# Scene 3: Splice the words so that you can move through the pipes!");
-            }
-            else{            
-              this.pc.updateVariable('confirmation', false);
-            }
-          }
-
-          break;
-        case 3:
-          
-
-          break;
-        default:
-          break;
-        }  
-      return pyresponse;
-      }
-    catch (error) {
-    const pyresponse = (error as Error).toString();
-    return pyresponse;
-    }
   }
 
   initializePipes() {
@@ -175,7 +102,5 @@ mystdout.getvalue()
       randomWords.push(words[randomIndex]);
       words.splice(randomIndex, 1);
     }
-
   }
-
 }

@@ -7,7 +7,6 @@ import { Level1Component } from '../components/levels/level1.component';
 import { Logger0Component } from '../components/levels/logger0.component';
 import { Level2Component } from '../components/levels/level2.component';
 import { LevelTestComponent } from '../components/levels/level_template.component';
-import { Logger1Component } from '../components/levels/logger1.component';
 import { PlayerCodeService } from '../services/player-code.service';
 import { levels } from '../utils/utils';
 
@@ -75,7 +74,6 @@ export class GameViewComponent {
         break;
       case 1:
         this.uiPlaceholder.createComponent(Level1Component);
-        this.loggerPlaceholder.createComponent(Logger1Component);
         break;
       // case 2:
       //   this.uiPlaceholder.createComponent(Level2Component);

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as PIXI from 'pixi.js';
+import '@pixi/unsafe-eval';
+
 
 
 @Component({

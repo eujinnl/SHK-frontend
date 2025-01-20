@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import * as PIXI from 'pixi.js';
+import '@pixi/unsafe-eval';
+
 import { AsyncPipe, DecimalPipe, JsonPipe, NgForOf, NgIf } from '@angular/common';
 import { UUID } from 'crypto';
 
